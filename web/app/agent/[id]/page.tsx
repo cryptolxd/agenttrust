@@ -38,6 +38,21 @@ export default function AgentPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
 
+  // data:application/json;base64 形式的注册信息，解码出 agent 名字展示；否则截断长 URI
+  const formatAgentURI = (uri?: string) => {
+    if (!uri) return "—";
+    const m = uri.match(/^data:application\/json;base64,(.+)$/);
+    if (m) {
+      try {
+        const json = JSON.parse(atob(m[1]));
+        return json.name ? `${json.name}（内嵌注册信息）` : "内嵌注册信息";
+      } catch {
+        return "内嵌注册信息";
+      }
+    }
+    return uri.length > 60 ? `${uri.slice(0, 60)}…` : uri;
+  };
+
   const { data, isLoading, refetch } = useQuery<AgentDetail>({
     queryKey: ["agent", id],
     queryFn: async () => {
@@ -90,7 +105,7 @@ export default function AgentPage() {
             size="small"
             items={[
               { key: "owner", label: "Owner", children: data.owner },
-              { key: "uri", label: "注册信息 URI", children: data.agentURI || "—" },
+              { key: "uri", label: "注册信息 URI", children: formatAgentURI(data.agentURI) },
               { key: "count", label: "评价数", children: data.reviewCount },
               {
                 key: "avg",
