@@ -21,16 +21,22 @@ https://bscscan.com/address/0xE269D575c0EDd8aa02078FC7Fb01053C17FC66dd
 **5. 项目社交媒体链接（X）**
 https://x.com/jettyleex
 
-## 后续页面（预计：Agent ID 使用说明 / 团队 / 奖励接收地址）
+## 二、Agent ID 集成信息（已填）
 
-**Agent ID 使用说明**
-- 集成方式：AgentReputationHub.submitReview 第一行校验 Agent ID 合约（0x60b9262456de011f7d15a54cdd8c48baaa8b022f）的 balanceOf(msg.sender) > 0，无 Agent ID 直接 revert
-- 应用场景：准入（只有 Agent ID 持有者可写评价）+ 身份（评价者 = 币安 KYC 真人，一人一票抗女巫）
-- 前端引导：钱包无 Agent ID 时展示领取路径（币安 App → 钱包 → 首页横幅 → Agent ID）
-- 每笔评价交易均来自 Agent ID 持有地址，直接贡献生态交互数据
+**6. 请描述项目如何使用 Agent ID（3-5 句）**
+AgentTrust 将 Agent ID 作为评价者准入与身份层：合约 AgentReputationHub.submitReview 第一行即校验 Agent ID 合约（0x60b9262456de011f7d15a54cdd8c48baaa8b022f）的 balanceOf(msg.sender) > 0，无 Agent ID 直接 revert。这保证每条 Agent 信用评价都来自经过币安 KYC 的真人（一个 KYC 一个 Agent ID），一人一票、天然抗女巫，让信用分无法被批量小号污染。前端检测到钱包无 Agent ID 时会引导用户到币安 App 领取。每笔评价交易都来自 Agent ID 持有地址，为 Agent ID 生态沉淀真实交互数据与声誉资产。
 
-**奖励接收地址**
-（待定：建议用你常用的 BSC 地址，别用 deployer）
+**7. 应用场景（多选）**：身份识别/身份验证 + 权限管理/访问控制
+**8. 产品已上线？**：Yes
 
-**合约 owner 权限披露**
-合约无 owner、无管理员函数、不可升级、无资产托管逻辑；仅存储评价数据，任何人可验证。
+## 三、BNB Chain 合约信息（已填）
+
+**9. 合约地址**：0xE269D575c0EDd8aa02078FC7Fb01053C17FC66dd
+**10. BscScan 验证链接**：https://bscscan.com/address/0xE269D575c0EDd8aa02078FC7Fb01053C17FC66dd#code
+**11. 已完成集成并产生链上交互？**：No（提交时诚实状态；交互起来后无需改表，链上数据自动统计）
+
+## 四、项目展示材料
+
+**12. 产品演示视频（必填）**：⚠️ 待录制，分镜脚本见 docs/demo-video-script.md
+**13. 代码仓库**：https://github.com/cryptolxd/agenttrust ✅ 已填
+**14. 其他补充材料**（选填）：可考虑放 README 英文版或本文件的链接
