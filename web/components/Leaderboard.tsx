@@ -1,6 +1,6 @@
 "use client";
 
-import { Table, Typography, Tag } from "antd";
+import { Table, Typography } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import ScoreBadge from "./ScoreBadge";
@@ -24,9 +24,11 @@ export default function Leaderboard() {
 
   return (
     <div>
-      <Typography.Title level={4}>信用榜</Typography.Title>
+      <Typography.Title level={4} style={{ color: "#EAECEF", fontWeight: 600 }}>
+        信用榜
+      </Typography.Title>
       {error && (
-        <Typography.Paragraph type="secondary">
+        <Typography.Paragraph style={{ color: "#5E6673" }}>
           榜单加载失败，可直接搜索 Agent ID 查分。
         </Typography.Paragraph>
       )}
@@ -37,17 +39,23 @@ export default function Leaderboard() {
         pagination={false}
         size="middle"
         locale={{ emptyText: "暂无评价数据，来做第一个评价的人" }}
+        onRow={(r) => ({
+          style: { cursor: "pointer" },
+          onClick: () => (window.location.href = `/agent/${r.agentId}`),
+        })}
         columns={[
           {
             title: "#",
-            width: 48,
-            render: (_v, _r, i) => i + 1,
+            width: 56,
+            render: (_v, _r, i) => (
+              <span style={{ color: "#5E6673" }}>{i + 1}</span>
+            ),
           },
           {
             title: "Agent ID",
             render: (_v, r) => (
               <Link href={`/agent/${r.agentId}`}>
-                <Tag color="gold">#{r.agentId}</Tag>
+                <span style={{ color: "#F0B90B", fontWeight: 600 }}>#{r.agentId}</span>
               </Link>
             ),
           },
@@ -61,11 +69,14 @@ export default function Leaderboard() {
             title: "评价数",
             dataIndex: "reviewCount",
             width: 90,
+            render: (v: number) => <span style={{ color: "#EAECEF" }}>{v}</span>,
           },
           {
             title: "平均分",
             width: 90,
-            render: (_v, r) => r.avgScore.toFixed(1),
+            render: (_v, r) => (
+              <span style={{ color: "#EAECEF" }}>{r.avgScore.toFixed(1)}</span>
+            ),
           },
         ]}
       />

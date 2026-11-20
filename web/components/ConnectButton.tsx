@@ -10,6 +10,8 @@ function short(addr: string) {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
 
+const pillStyle: React.CSSProperties = { borderRadius: 20, fontWeight: 500 };
+
 export default function ConnectButton() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -21,7 +23,7 @@ export default function ConnectButton() {
   const { message } = App.useApp();
 
   if (!mounted) {
-    return <Button icon={<WalletOutlined />} loading />;
+    return <Button style={pillStyle} icon={<WalletOutlined />} loading />;
   }
 
   if (!isConnected || !address) {
@@ -29,6 +31,7 @@ export default function ConnectButton() {
     return (
       <Button
         type="primary"
+        style={pillStyle}
         icon={<WalletOutlined />}
         loading={isPending}
         onClick={() => {
@@ -46,7 +49,7 @@ export default function ConnectButton() {
 
   if (chainId !== bsc.id) {
     return (
-      <Button danger onClick={() => switchChain({ chainId: bsc.id })}>
+      <Button danger style={pillStyle} onClick={() => switchChain({ chainId: bsc.id })}>
         切换到 BNB Chain
       </Button>
     );
@@ -65,7 +68,9 @@ export default function ConnectButton() {
         ],
       }}
     >
-      <Button icon={<WalletOutlined />}>{short(address)}</Button>
+      <Button style={pillStyle} icon={<WalletOutlined />}>
+        {short(address)}
+      </Button>
     </Dropdown>
   );
 }
