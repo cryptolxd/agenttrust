@@ -105,8 +105,8 @@ npm run dev
 - [x] 传播奖表单已提交（UID 102842448 + X 链接，提交成功）
 - [x] 合约部署 BSC 主网
 - [ ] BscScan 源码验证（需 BSCSCAN_API_KEY 填入 contracts/.env，然后跑 `npm run verify:bsc -- 0xE269D575c0EDd8aa02078FC7Fb01053C17FC66dd 0xfA09B3397fAC75424422C4D28b1729E3D4f659D7 0x17860530385Bdde7992c4Da71B9ec7791E474C08 0x60b9262456de011f7d15a54cdd8c48baaa8b022f`）
-- [ ] 前端上线（Vercel），币安 App Web3 浏览器内实测
-- [ ] 项目报名表提交（需币安登录 + 合约地址）：https://app.binance.com/uni-qr/user-survey/fb26d2bd25e04329b1ba77c7b3811d23
+- [x] 前端上线（Railway）：https://agenttrust-production-9a2d1cbe.up.railway.app
+- [x] 项目报名表已提交（2026-11-20，含演示视频 https://agenttrust-production-9a2d1cbe.up.railway.app/demo.mp4）
 - [ ] 拉 ≥30 个 Agent ID 地址真实交互（创新奖门槛）
 - [ ] Demo 视频（3 分钟内）
 - [ ] 传播奖帖子 2（~11/25）/ 帖子 3（提交前）
