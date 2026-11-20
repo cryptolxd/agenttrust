@@ -47,3 +47,4 @@
 - 2026-11-20 ✅ @rembohunt（英文，AgentClaim）互暖帖：https://x.com/jettyleex/status/2123458750807982132
 - 经验：X 编辑器对 JS 注入极度敏感，唯一可靠流程 = intent URL 预填 + mouse_click 对话框内发帖按钮；回复流（in_reply_to）预填无效，用 @提及代替；含链接的帖子 X 按 t.co 23 字计
 - 2026-11-20 ✅ @bonggodong（英文，NamePay）互暖帖：https://x.com/jettyleex/status/2123633378293608643
+- 2026-11-20 ✅ @GCORE_Token 提问"分数如何从早期差评恢复"→ 用贝叶斯机制专业解答并植入产品：https://x.com/jettyleex/status/2123635249225814436
