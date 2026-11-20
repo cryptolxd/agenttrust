@@ -4,6 +4,8 @@ import { Input, Typography, Space } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import Leaderboard from "@/components/Leaderboard";
+import Features from "@/components/Features";
+import Faq from "@/components/Faq";
 
 export default function Home() {
   const router = useRouter();
@@ -42,8 +44,14 @@ export default function Home() {
           }}
         />
       </div>
+
+      <Features />
+
       <hr className="divider-fade" />
       <Leaderboard />
+
+      <hr className="divider-fade" />
+      <Faq />
     </Space>
   );
 }
