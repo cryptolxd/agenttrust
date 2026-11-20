@@ -6,29 +6,31 @@ import {
   EditOutlined,
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
-
-const FEATURES = [
-  {
-    icon: <SearchOutlined style={{ fontSize: 26, color: "#F0B90B" }} />,
-    title: "查信用分",
-    desc: "输入 Agent ID，秒出信任评分、评价人数和评价明细，数据全部来自链上。",
-  },
-  {
-    icon: <EditOutlined style={{ fontSize: 26, color: "#F0B90B" }} />,
-    title: "写评价",
-    desc: "Agent ID 持有者一人一票，评价实时写入链上声誉层，全生态可查可复用。",
-  },
-  {
-    icon: <SafetyCertificateOutlined style={{ fontSize: 26, color: "#F0B90B" }} />,
-    title: "防刷评",
-    desc: "一个 KYC 一个 Agent ID，小号刷分在这里行不通——信用分才有意义。",
-  },
-];
+import { useT } from "@/lib/i18n";
 
 export default function Features() {
+  const { t } = useT();
+  const features = [
+    {
+      icon: <SearchOutlined style={{ fontSize: 26, color: "#F0B90B" }} />,
+      title: t("features.1.title"),
+      desc: t("features.1.desc"),
+    },
+    {
+      icon: <EditOutlined style={{ fontSize: 26, color: "#F0B90B" }} />,
+      title: t("features.2.title"),
+      desc: t("features.2.desc"),
+    },
+    {
+      icon: <SafetyCertificateOutlined style={{ fontSize: 26, color: "#F0B90B" }} />,
+      title: t("features.3.title"),
+      desc: t("features.3.desc"),
+    },
+  ];
+
   return (
     <Row gutter={[16, 16]}>
-      {FEATURES.map((f) => (
+      {features.map((f) => (
         <Col xs={24} sm={8} key={f.title}>
           <Card
             style={{

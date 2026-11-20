@@ -4,6 +4,7 @@ import { Table, Typography } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import ScoreBadge from "./ScoreBadge";
+import { useT } from "@/lib/i18n";
 
 export type LeaderboardRow = {
   agentId: string;
@@ -13,6 +14,7 @@ export type LeaderboardRow = {
 };
 
 export default function Leaderboard() {
+  const { t } = useT();
   const { data, isLoading, error } = useQuery<{ rows: LeaderboardRow[]; source: string }>({
     queryKey: ["leaderboard"],
     queryFn: async () => {
@@ -25,11 +27,11 @@ export default function Leaderboard() {
   return (
     <div>
       <Typography.Title level={4} style={{ color: "#EAECEF", fontWeight: 600 }}>
-        信用榜
+        {t("leaderboard.title")}
       </Typography.Title>
       {error && (
         <Typography.Paragraph style={{ color: "#5E6673" }}>
-          榜单加载失败，可直接搜索 Agent ID 查分。
+          {t("leaderboard.error")}
         </Typography.Paragraph>
       )}
       <Table<LeaderboardRow>
@@ -38,7 +40,7 @@ export default function Leaderboard() {
         dataSource={data?.rows || []}
         pagination={false}
         size="middle"
-        locale={{ emptyText: "暂无评价数据，来做第一个评价的人" }}
+        locale={{ emptyText: t("leaderboard.empty") }}
         onRow={(r) => ({
           style: { cursor: "pointer" },
           onClick: () => (window.location.href = `/agent/${r.agentId}`),
@@ -52,7 +54,7 @@ export default function Leaderboard() {
             ),
           },
           {
-            title: "Agent ID",
+            title: t("table.agentId"),
             render: (_v, r) => (
               <Link href={`/agent/${r.agentId}`}>
                 <span style={{ color: "#F0B90B", fontWeight: 600 }}>#{r.agentId}</span>
@@ -60,19 +62,19 @@ export default function Leaderboard() {
             ),
           },
           {
-            title: "信用分",
+            title: t("table.trustScore"),
             render: (_v, r) => (
               <ScoreBadge score={r.trustScore} count={r.reviewCount} />
             ),
           },
           {
-            title: "评价数",
+            title: t("table.reviewCount"),
             dataIndex: "reviewCount",
             width: 90,
             render: (v: number) => <span style={{ color: "#EAECEF" }}>{v}</span>,
           },
           {
-            title: "平均分",
+            title: t("table.avgScore"),
             width: 90,
             render: (_v, r) => (
               <span style={{ color: "#EAECEF" }}>{r.avgScore.toFixed(1)}</span>

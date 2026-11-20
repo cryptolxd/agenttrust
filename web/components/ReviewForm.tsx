@@ -9,6 +9,7 @@ import {
 } from "wagmi";
 import { useEffect } from "react";
 import { HUB_ADDRESS, HUB_ABI, AGENT_ID_CONTRACT, AGENT_ID_ABI } from "@/lib/contracts";
+import { useT } from "@/lib/i18n";
 
 const TAGS = ["trading", "payment", "defi", "social", "slow", "scam"];
 
@@ -19,6 +20,7 @@ export default function ReviewForm({
   agentId: bigint;
   onSuccess?: () => void;
 }) {
+  const { t } = useT();
   const { address, isConnected } = useAccount();
   const { data: agentIdBalance, isLoading: checkingAgentId } = useReadContract({
     address: AGENT_ID_CONTRACT,
@@ -34,47 +36,42 @@ export default function ReviewForm({
 
   useEffect(() => {
     if (isSuccess) {
-      message.success("评价已上链");
+      message.success(t("review.success"));
       onSuccess?.();
     }
   }, [isSuccess]);
 
   useEffect(() => {
-    if (error) message.error(`交易失败：${error.message.slice(0, 120)}`);
+    if (error) message.error(error.message.slice(0, 120));
   }, [error]);
 
   if (!HUB_ADDRESS) {
     return (
-      <Alert type="warning" showIcon message="评价合约尚未部署，暂时只能查分。" />
+      <Alert type="warning" showIcon message={t("review.notDeployed")} />
     );
   }
 
   if (isConnected && !checkingAgentId && !hasAgentID) {
     return (
-      <Card title="写评价" size="small">
+      <Card title={t("review.title")} size="small">
         <Alert
           type="warning"
           showIcon
-          message="你还没有 Agent ID"
-          description={
-            <>
-              评价功能仅对 Agent ID 持有者开放（一个 KYC 一个，防刷评）。领取方式：
-              打开币安 App → 钱包 → 首页横幅 → Agent ID，领取后回到本页刷新即可。
-            </>
-          }
+          message={t("review.noAgentId.title")}
+          description={t("review.noAgentId.desc")}
         />
       </Card>
     );
   }
 
   return (
-    <Card title="写评价" size="small">
+    <Card title={t("review.title")} size="small">
       {!isConnected && (
         <Alert
           type="info"
           showIcon
           style={{ marginBottom: 16 }}
-          message="请先连接币安钱包。提交时会弹出钱包确认窗口，由你亲手签名。"
+          message={t("review.connectHint")}
         />
       )}
       <Form
@@ -82,7 +79,7 @@ export default function ReviewForm({
         disabled={!isConnected || checkingAgentId || isPending || confirming}
         initialValues={{ score: 80, tag: "trading", forward: true }}
         onFinish={(values) => {
-          message.info("请在币安钱包中确认这笔交易");
+          message.info(t("review.walletPrompt"));
           writeContract({
             address: HUB_ADDRESS,
             abi: HUB_ABI,
@@ -97,24 +94,24 @@ export default function ReviewForm({
           });
         }}
       >
-        <Form.Item name="score" label="评分（1-100）" rules={[{ required: true }]}>
+        <Form.Item name="score" label={t("review.score")} rules={[{ required: true }]}>
           <Slider min={1} max={100} marks={{ 1: "1", 50: "50", 100: "100" }} />
         </Form.Item>
-        <Form.Item name="tag" label="标签" rules={[{ required: true }]}>
-          <Select options={TAGS.map((t) => ({ value: t, label: t }))} />
+        <Form.Item name="tag" label={t("review.tag")} rules={[{ required: true }]}>
+          <Select options={TAGS.map((v) => ({ value: v, label: v }))} />
         </Form.Item>
-        <Form.Item name="commentURI" label="评论链接（可选，IPFS / HTTPS）">
+        <Form.Item name="commentURI" label={t("review.comment")}>
           <Input placeholder="https:// 或 ipfs://" />
         </Form.Item>
         <Form.Item
           name="forward"
-          label="同步写入 ERC-8004 官方声誉注册表"
+          label={t("review.forward")}
           valuePropName="checked"
         >
           <Switch />
         </Form.Item>
-        <Button type="primary" htmlType="submit" block loading={isPending || confirming}>
-          {confirming ? "等待区块确认..." : "提交评价（钱包确认）"}
+        <Button type="primary" htmlType="submit" block loading={isPending || confirming} style={{ borderRadius: 20, fontWeight: 500 }}>
+          {confirming ? t("review.confirming") : t("review.submit")}
         </Button>
       </Form>
     </Card>

@@ -1,0 +1,280 @@
+"use client";
+
+import { createContext, useContext, useEffect, useState } from "react";
+
+export type Locale = "zh-CN" | "zh-TW" | "en";
+
+export const LOCALE_LABELS: Record<Locale, string> = {
+  "zh-CN": "简体中文",
+  "zh-TW": "繁體中文",
+  en: "English",
+};
+
+const dictionaries: Record<Locale, Record<string, string>> = {
+  "zh-CN": {
+    "nav.connect": "连接钱包",
+    "nav.switchChain": "切换到 BNB Chain",
+    "nav.disconnect": "断开连接",
+    "nav.noWallet": "未检测到钱包，请在币安 App Web3 浏览器或币安钱包插件中打开",
+    "hero.titleA": "交易之前，先",
+    "hero.titleB": "查分",
+    "hero.sub1": "BNB 链上每个 Agent 的公开信用分",
+    "hero.sub2": "只有 Agent ID 持有者能评价，一个 KYC 一票",
+    "hero.searchPlaceholder": "输入 Agent ID（数字），如 1",
+    "features.1.title": "查信用分",
+    "features.1.desc": "输入 Agent ID，秒出信任评分、评价人数和评价明细，数据全部来自链上。",
+    "features.2.title": "写评价",
+    "features.2.desc": "Agent ID 持有者一人一票，评价实时写入链上声誉层，全生态可查可复用。",
+    "features.3.title": "防刷评",
+    "features.3.desc": "一个 KYC 一个 Agent ID，小号刷分在这里行不通——信用分才有意义。",
+    "leaderboard.title": "信用榜",
+    "leaderboard.empty": "暂无评价数据，来做第一个评价的人",
+    "leaderboard.error": "榜单加载失败，可直接搜索 Agent ID 查分。",
+    "table.agentId": "Agent ID",
+    "table.trustScore": "信用分",
+    "table.reviewCount": "评价数",
+    "table.avgScore": "平均分",
+    "table.reviewer": "评价者",
+    "table.score": "评分",
+    "table.tag": "标签",
+    "table.time": "时间",
+    "agent.notFound": "不存在",
+    "agent.notFoundDesc": "该 Agent ID 尚未在 ERC-8004 IdentityRegistry 注册",
+    "agent.backHome": "返回首页",
+    "agent.owner": "Owner",
+    "agent.uri": "注册信息",
+    "agent.reviewCount": "评价数",
+    "agent.avgScore": "平均分",
+    "agent.reviews": "评价明细",
+    "agent.noReviews": "还没有评价",
+    "agent.embedded": "内嵌注册信息",
+    "review.title": "写评价",
+    "review.connectHint": "请先连接币安钱包。提交时会弹出钱包确认窗口，由你亲手签名。",
+    "review.noAgentId.title": "你还没有 Agent ID",
+    "review.noAgentId.desc": "评价功能仅对 Agent ID 持有者开放（一个 KYC 一个，防刷评）。领取方式：打开币安 App → 钱包 → 首页横幅 → Agent ID，领取后回到本页刷新即可。",
+    "review.score": "评分（1-100）",
+    "review.tag": "标签",
+    "review.comment": "评论链接（可选，IPFS / HTTPS）",
+    "review.forward": "同步写入 ERC-8004 官方声誉注册表",
+    "review.submit": "提交评价（钱包确认）",
+    "review.confirming": "等待区块确认...",
+    "review.success": "评价已上链",
+    "review.walletPrompt": "请在币安钱包中确认这笔交易",
+    "review.notDeployed": "评价合约尚未部署，暂时只能查分。",
+    "score.empty": "暂无评价",
+    "score.trustHigh": "信任高",
+    "score.trustMid": "信任中",
+    "score.trustLow": "信任低",
+    "score.unknown": "暂无评价",
+    "faq.title": "常见问题",
+    "faq.1.q": "AgentTrust 是币安官方产品吗？",
+    "faq.1.a": "不是。AgentTrust 是 Binance Wallet × BNB Chain Agent ID 黑客松的独立参赛作品，基于公开的 ERC-8004 与 Agent ID 合约构建，与币安无隶属关系。",
+    "faq.2.q": "什么是 Agent ID？怎么领取？",
+    "faq.2.a": "Agent ID 是币安 Agentic Wallet 的链上名字（形如 name.ai），一个 KYC 只能领取一个，不可转让。领取路径：币安 App → 钱包 → 首页横幅 → Agent ID，名字为 3-15 个小写字母或数字，先到先得。",
+    "faq.3.q": "为什么只有 Agent ID 持有者能写评价？",
+    "faq.3.a": "防刷评。一个 KYC 一个 Agent ID，一人一票，信用分才不会被批量小号污染——这是 AgentTrust 和普通评分站的核心区别。",
+    "faq.4.q": "写评价要花钱吗？",
+    "faq.4.a": "评价本身免费，只需支付 BSC 链上 gas（约 ¥1-2 一笔）。每笔交易都会弹出币安钱包，由你亲手确认后才会上链。",
+    "faq.5.q": "我的资产和私钥安全吗？",
+    "faq.5.a": "AgentTrust 不碰私钥、不存会话、不代下单、不托管资产。合约只读写评价数据，没有任何转账或授权逻辑，也没有 owner 权限。源码已在 BscScan 验证开源，任何人可审计：https://bscscan.com/address/0xE269D575c0EDd8aa02078FC7Fb01053C17FC66dd#code",
+    "faq.6.q": "信用分是怎么算出来的？",
+    "faq.6.a": "贝叶斯加权平均：信用分 =（平均分 × 评价数 + 50 × 5）÷（评价数 + 5）。避免「一条满分评价 = 100 分」的假象——评价人数越多，分数越接近真实水平。",
+    "faq.7.q": "评价写错了能改吗？",
+    "faq.7.a": "可以改，不能删。同一钱包对同一 Agent 再次提交评价会覆盖旧评价，链上只保留你的最新一条。",
+    "faq.8.q": "评价数据存在哪里？",
+    "faq.8.a": "双写两份：AgentReputationHub 合约（聚合统计）+ 官方 ERC-8004 ReputationRegistry（生态通用的声誉层）。任何人都可以链上验证，不依赖我们的服务器。",
+    "footer": "Built on BNB Chain · 数据来自 ERC-8004 声誉层 · 每笔交易由你在币安钱包中确认",
+  },
+  "zh-TW": {
+    "nav.connect": "連接錢包",
+    "nav.switchChain": "切換到 BNB Chain",
+    "nav.disconnect": "斷開連接",
+    "nav.noWallet": "未檢測到錢包，請在幣安 App Web3 瀏覽器或幣安錢包插件中打開",
+    "hero.titleA": "交易之前，先",
+    "hero.titleB": "查分",
+    "hero.sub1": "BNB 鏈上每個 Agent 的公開信用分",
+    "hero.sub2": "只有 Agent ID 持有者能評價，一個 KYC 一票",
+    "hero.searchPlaceholder": "輸入 Agent ID（數字），如 1",
+    "features.1.title": "查信用分",
+    "features.1.desc": "輸入 Agent ID，秒出信任評分、評價人數和評價明細，數據全部來自鏈上。",
+    "features.2.title": "寫評價",
+    "features.2.desc": "Agent ID 持有者一人一票，評價實時寫入鏈上聲譽層，全生態可查可複用。",
+    "features.3.title": "防刷評",
+    "features.3.desc": "一個 KYC 一個 Agent ID，小號刷分在這裡行不通——信用分才有意義。",
+    "leaderboard.title": "信用榜",
+    "leaderboard.empty": "暫無評價數據，來做第一個評價的人",
+    "leaderboard.error": "榜單加載失敗，可直接搜索 Agent ID 查分。",
+    "table.agentId": "Agent ID",
+    "table.trustScore": "信用分",
+    "table.reviewCount": "評價數",
+    "table.avgScore": "平均分",
+    "table.reviewer": "評價者",
+    "table.score": "評分",
+    "table.tag": "標籤",
+    "table.time": "時間",
+    "agent.notFound": "不存在",
+    "agent.notFoundDesc": "該 Agent ID 尚未在 ERC-8004 IdentityRegistry 註冊",
+    "agent.backHome": "返回首頁",
+    "agent.owner": "Owner",
+    "agent.uri": "註冊信息",
+    "agent.reviewCount": "評價數",
+    "agent.avgScore": "平均分",
+    "agent.reviews": "評價明細",
+    "agent.noReviews": "還沒有評價",
+    "agent.embedded": "內嵌註冊信息",
+    "review.title": "寫評價",
+    "review.connectHint": "請先連接幣安錢包。提交時會彈出錢包確認窗口，由你親手簽名。",
+    "review.noAgentId.title": "你還沒有 Agent ID",
+    "review.noAgentId.desc": "評價功能僅對 Agent ID 持有者開放（一個 KYC 一個，防刷評）。領取方式：打開幣安 App → 錢包 → 首頁橫幅 → Agent ID，領取後回到本頁刷新即可。",
+    "review.score": "評分（1-100）",
+    "review.tag": "標籤",
+    "review.comment": "評論鏈接（可選，IPFS / HTTPS）",
+    "review.forward": "同步寫入 ERC-8004 官方聲譽註冊表",
+    "review.submit": "提交評價（錢包確認）",
+    "review.confirming": "等待區塊確認...",
+    "review.success": "評價已上鏈",
+    "review.walletPrompt": "請在幣安錢包中確認這筆交易",
+    "review.notDeployed": "評價合約尚未部署，暫時只能查分。",
+    "score.empty": "暫無評價",
+    "score.trustHigh": "信任高",
+    "score.trustMid": "信任中",
+    "score.trustLow": "信任低",
+    "score.unknown": "暫無評價",
+    "faq.title": "常見問題",
+    "faq.1.q": "AgentTrust 是幣安官方產品嗎？",
+    "faq.1.a": "不是。AgentTrust 是 Binance Wallet × BNB Chain Agent ID 黑客松的獨立參賽作品，基於公開的 ERC-8004 與 Agent ID 合約構建，與幣安無隸屬關係。",
+    "faq.2.q": "什麼是 Agent ID？怎麼領取？",
+    "faq.2.a": "Agent ID 是幣安 Agentic Wallet 的鏈上名字（形如 name.ai），一個 KYC 只能領取一個，不可轉讓。領取路徑：幣安 App → 錢包 → 首頁橫幅 → Agent ID，名字為 3-15 個小寫字母或數字，先到先得。",
+    "faq.3.q": "為什麼只有 Agent ID 持有者能寫評價？",
+    "faq.3.a": "防刷評。一個 KYC 一個 Agent ID，一人一票，信用分才不會被批量小號污染——這是 AgentTrust 和普通評分站的核心區別。",
+    "faq.4.q": "寫評價要花錢嗎？",
+    "faq.4.a": "評價本身免費，只需支付 BSC 鏈上 gas（約 ¥1-2 一筆）。每筆交易都會彈出幣安錢包，由你親手確認後才會上鏈。",
+    "faq.5.q": "我的資產和私鑰安全嗎？",
+    "faq.5.a": "AgentTrust 不碰私鑰、不存會話、不代下單、不託管資產。合約只讀寫評價數據，沒有任何轉帳或授權邏輯，也沒有 owner 權限。源碼已在 BscScan 驗證開源，任何人可審計：https://bscscan.com/address/0xE269D575c0EDd8aa02078FC7Fb01053C17FC66dd#code",
+    "faq.6.q": "信用分是怎麼算出來的？",
+    "faq.6.a": "貝葉斯加權平均：信用分 =（平均分 × 評價數 + 50 × 5）÷（評價數 + 5）。避免「一條滿分評價 = 100 分」的假象——評價人數越多，分數越接近真實水平。",
+    "faq.7.q": "評價寫錯了能改嗎？",
+    "faq.7.a": "可以改，不能刪。同一錢包對同一 Agent 再次提交評價會覆蓋舊評價，鏈上只保留你的最新一條。",
+    "faq.8.q": "評價數據存在哪裡？",
+    "faq.8.a": "雙寫兩份：AgentReputationHub 合約（聚合統計）+ 官方 ERC-8004 ReputationRegistry（生態通用的聲譽層）。任何人都可以鏈上驗證，不依賴我們的伺服器。",
+    "footer": "Built on BNB Chain · 數據來自 ERC-8004 聲譽層 · 每筆交易由你在幣安錢包中確認",
+  },
+  en: {
+    "nav.connect": "Connect Wallet",
+    "nav.switchChain": "Switch to BNB Chain",
+    "nav.disconnect": "Disconnect",
+    "nav.noWallet": "No wallet detected. Open this page in the Binance App Web3 browser or the Binance Wallet extension.",
+    "hero.titleA": "Check the score",
+    "hero.titleB": " before you transact",
+    "hero.sub1": "Public trust scores for every agent on BNB Chain",
+    "hero.sub2": "Only Agent ID holders can review — one KYC, one vote",
+    "hero.searchPlaceholder": "Enter an Agent ID (number), e.g. 1",
+    "features.1.title": "Check scores",
+    "features.1.desc": "Enter an Agent ID to instantly see its trust score, review count and details — all from on-chain data.",
+    "features.2.title": "Write reviews",
+    "features.2.desc": "One vote per Agent ID holder. Reviews are written to the on-chain reputation layer in real time, reusable by the whole ecosystem.",
+    "features.3.title": "Sybil-proof",
+    "features.3.desc": "One KYC, one Agent ID. Bot farms can't fake reputation here — that's what makes the score meaningful.",
+    "leaderboard.title": "Leaderboard",
+    "leaderboard.empty": "No reviews yet — be the first to rate an agent",
+    "leaderboard.error": "Failed to load. You can still search an Agent ID directly.",
+    "table.agentId": "Agent ID",
+    "table.trustScore": "Trust Score",
+    "table.reviewCount": "Reviews",
+    "table.avgScore": "Avg Score",
+    "table.reviewer": "Reviewer",
+    "table.score": "Score",
+    "table.tag": "Tag",
+    "table.time": "Date",
+    "agent.notFound": "not found",
+    "agent.notFoundDesc": "This Agent ID is not registered in the ERC-8004 IdentityRegistry yet",
+    "agent.backHome": "Back to home",
+    "agent.owner": "Owner",
+    "agent.uri": "Registration",
+    "agent.reviewCount": "Reviews",
+    "agent.avgScore": "Avg Score",
+    "agent.reviews": "Review details",
+    "agent.noReviews": "No reviews yet",
+    "agent.embedded": "embedded registration data",
+    "review.title": "Write a review",
+    "review.connectHint": "Connect your Binance Wallet first. You'll confirm the transaction in your wallet — signed by you, always.",
+    "review.noAgentId.title": "You don't have an Agent ID yet",
+    "review.noAgentId.desc": "Reviews are open to Agent ID holders only (one per KYC — sybil-proof). Claim yours: Binance App → Wallet → home banner → Agent ID, then refresh this page.",
+    "review.score": "Score (1-100)",
+    "review.tag": "Tag",
+    "review.comment": "Comment link (optional, IPFS / HTTPS)",
+    "review.forward": "Also write to the official ERC-8004 ReputationRegistry",
+    "review.submit": "Submit review (confirm in wallet)",
+    "review.confirming": "Waiting for block confirmation...",
+    "review.success": "Review is on-chain",
+    "review.walletPrompt": "Please confirm this transaction in Binance Wallet",
+    "review.notDeployed": "The review contract is not deployed yet. Read-only for now.",
+    "score.empty": "No reviews",
+    "score.trustHigh": "High trust",
+    "score.trustMid": "Medium trust",
+    "score.trustLow": "Low trust",
+    "score.unknown": "No reviews",
+    "faq.title": "FAQ",
+    "faq.1.q": "Is AgentTrust an official Binance product?",
+    "faq.1.a": "No. AgentTrust is an independent entry to the Binance Wallet × BNB Chain Agent ID Hackathon, built on the public ERC-8004 and Agent ID contracts. It is not affiliated with Binance.",
+    "faq.2.q": "What is an Agent ID and how do I claim one?",
+    "faq.2.a": "An Agent ID is the on-chain name of your Binance Agentic Wallet (e.g. name.ai) — one per KYC, non-transferable. Claim it in the Binance App: Wallet → home banner → Agent ID. Names are 3-15 lowercase letters or digits, first come first served.",
+    "faq.3.q": "Why can only Agent ID holders write reviews?",
+    "faq.3.a": "Anti-sybil. One KYC = one Agent ID = one vote, so bot farms can't pollute the score. That's the core difference between AgentTrust and ordinary review sites.",
+    "faq.4.q": "Does it cost anything to review?",
+    "faq.4.a": "Reviews are free — you only pay BSC gas (about $0.1-0.3). Every transaction pops up in Binance Wallet and only goes on-chain after you confirm it yourself.",
+    "faq.5.q": "Are my assets and keys safe?",
+    "faq.5.a": "AgentTrust never touches your keys, never stores sessions, never places orders, and never custodies assets. The contract only reads/writes review data — no transfers, no approvals, no owner privileges. Source code is verified on BscScan: https://bscscan.com/address/0xE269D575c0EDd8aa02078FC7Fb01053C17FC66dd#code",
+    "faq.6.q": "How is the trust score calculated?",
+    "faq.6.a": "Bayesian average: score = (avg × count + 50 × 5) ÷ (count + 5). This prevents a single 100-point review from looking perfect — the more reviews, the closer to the true average.",
+    "faq.7.q": "Can I edit a review I wrote?",
+    "faq.7.a": "Yes, edit — no delete. Submitting again for the same agent from the same wallet overwrites your previous review; only your latest one counts on-chain.",
+    "faq.8.q": "Where is review data stored?",
+    "faq.8.a": "Written twice: the AgentReputationHub contract (aggregation) + the official ERC-8004 ReputationRegistry (the ecosystem-wide reputation layer). Anyone can verify on-chain — no dependence on our servers.",
+    "footer": "Built on BNB Chain · Data from the ERC-8004 reputation layer · Every transaction confirmed by you in Binance Wallet",
+  },
+};
+
+type I18nContextType = {
+  locale: Locale;
+  setLocale: (l: Locale) => void;
+  t: (key: string) => string;
+};
+
+const I18nContext = createContext<I18nContextType>({
+  locale: "zh-CN",
+  setLocale: () => {},
+  t: (k) => k,
+});
+
+export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  const [locale, setLocaleState] = useState<Locale>("zh-CN");
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("agenttrust-locale") as Locale | null;
+    if (saved && dictionaries[saved]) {
+      setLocaleState(saved);
+      return;
+    }
+    const nav = window.navigator.language;
+    if (nav === "zh-TW" || nav === "zh-HK" || nav === "zh-Hant") setLocaleState("zh-TW");
+    else if (nav.startsWith("en")) setLocaleState("en");
+  }, []);
+
+  const setLocale = (l: Locale) => {
+    setLocaleState(l);
+    window.localStorage.setItem("agenttrust-locale", l);
+  };
+
+  const t = (key: string) => dictionaries[locale][key] ?? dictionaries["zh-CN"][key] ?? key;
+
+  return (
+    <I18nContext.Provider value={{ locale, setLocale, t }}>
+      {children}
+    </I18nContext.Provider>
+  );
+}
+
+export function useT() {
+  return useContext(I18nContext);
+}

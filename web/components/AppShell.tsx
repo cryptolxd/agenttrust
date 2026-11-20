@@ -1,14 +1,16 @@
 "use client";
 
-import { Layout, Typography, Space, Grid } from "antd";
-import { SafetyCertificateOutlined } from "@ant-design/icons";
+import { Layout, Typography, Space, Grid, Dropdown, Button } from "antd";
+import { SafetyCertificateOutlined, GlobalOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import ConnectButton from "./ConnectButton";
+import { useT, LOCALE_LABELS, Locale } from "@/lib/i18n";
 
 const { Header, Content, Footer } = Layout;
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const screens = Grid.useBreakpoint();
+  const { t, locale, setLocale } = useT();
 
   return (
     <Layout style={{ minHeight: "100vh", background: "#0B0E11" }}>
@@ -36,7 +38,27 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </Typography.Text>
           </Space>
         </Link>
-        <ConnectButton />
+        <Space size={12}>
+          <Dropdown
+            menu={{
+              items: (Object.keys(LOCALE_LABELS) as Locale[]).map((l) => ({
+                key: l,
+                label: LOCALE_LABELS[l],
+                onClick: () => setLocale(l),
+              })),
+              selectedKeys: [locale],
+            }}
+          >
+            <Button
+              style={{ borderRadius: 20 }}
+              icon={<GlobalOutlined />}
+              aria-label="language"
+            >
+              {screens.md ? LOCALE_LABELS[locale] : undefined}
+            </Button>
+          </Dropdown>
+          <ConnectButton />
+        </Space>
       </Header>
       <Content>
         <div className="container" style={{ paddingTop: 40, paddingBottom: 64 }}>
@@ -52,7 +74,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           borderTop: "1px solid #1E2329",
         }}
       >
-        Built on BNB Chain · 数据来自 ERC-8004 声誉层 · 每笔交易由你在币安钱包中确认
+        {t("footer")}
       </Footer>
     </Layout>
   );

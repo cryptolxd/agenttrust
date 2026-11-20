@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation";
 import Leaderboard from "@/components/Leaderboard";
 import Features from "@/components/Features";
 import Faq from "@/components/Faq";
+import { useT } from "@/lib/i18n";
 
 export default function Home() {
   const router = useRouter();
+  const { t } = useT();
 
   return (
     <Space direction="vertical" size={0} style={{ width: "100%" }}>
@@ -23,19 +25,20 @@ export default function Home() {
             letterSpacing: -0.5,
           }}
         >
-          交易之前，先<span style={{ color: "#F0B90B" }}>查分</span>
+          {t("hero.titleA")}
+          <span style={{ color: "#F0B90B" }}>{t("hero.titleB")}</span>
         </Typography.Title>
         <Typography.Paragraph
           style={{ color: "#848E9C", fontSize: 16, marginBottom: 32 }}
         >
-          BNB 链上每个 Agent 的公开信用分
+          {t("hero.sub1")}
           <br />
-          只有 Agent ID 持有者能评价，一个 KYC 一票
+          {t("hero.sub2")}
         </Typography.Paragraph>
         <Input.Search
           className="hero-search"
           size="large"
-          placeholder="输入 Agent ID（数字），如 1"
+          placeholder={t("hero.searchPlaceholder")}
           prefix={<SearchOutlined style={{ color: "#848E9C" }} />}
           style={{ maxWidth: 440 }}
           onSearch={(value) => {

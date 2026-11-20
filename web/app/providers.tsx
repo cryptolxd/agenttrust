@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConfigProvider, theme as antdTheme, App as AntApp } from "antd";
 import zhCN from "antd/locale/zh_CN";
 import { wagmiConfig } from "@/lib/wagmi";
+import { LanguageProvider } from "@/lib/i18n";
 
 const queryClient = new QueryClient();
 
@@ -46,9 +47,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <ConfigProvider locale={zhCN} theme={binanceTheme}>
-          <AntApp>{children}</AntApp>
-        </ConfigProvider>
+        <LanguageProvider>
+          <ConfigProvider locale={zhCN} theme={binanceTheme}>
+            <AntApp>{children}</AntApp>
+          </ConfigProvider>
+        </LanguageProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

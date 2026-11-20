@@ -5,6 +5,7 @@ import { WalletOutlined, DisconnectOutlined } from "@ant-design/icons";
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
 import { bsc } from "wagmi/chains";
 import { useEffect, useState } from "react";
+import { useT } from "@/lib/i18n";
 
 function short(addr: string) {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
@@ -16,6 +17,7 @@ export default function ConnectButton() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
+  const { t } = useT();
   const { address, isConnected, chainId } = useAccount();
   const { connect, connectors, isPending } = useConnect();
   const { disconnect } = useDisconnect();
@@ -36,13 +38,13 @@ export default function ConnectButton() {
         loading={isPending}
         onClick={() => {
           if (!connector) {
-            message.warning("未检测到钱包，请在币安 App Web3 浏览器或币安钱包插件中打开");
+            message.warning(t("nav.noWallet"));
             return;
           }
           connect({ connector });
         }}
       >
-        连接钱包
+        {t("nav.connect")}
       </Button>
     );
   }
@@ -50,7 +52,7 @@ export default function ConnectButton() {
   if (chainId !== bsc.id) {
     return (
       <Button danger style={pillStyle} onClick={() => switchChain({ chainId: bsc.id })}>
-        切换到 BNB Chain
+        {t("nav.switchChain")}
       </Button>
     );
   }
@@ -62,7 +64,7 @@ export default function ConnectButton() {
           {
             key: "disconnect",
             icon: <DisconnectOutlined />,
-            label: "断开连接",
+            label: t("nav.disconnect"),
             onClick: () => disconnect(),
           },
         ],
