@@ -51,3 +51,7 @@
 - 2026-11-20 ✅ 币安广场简体版：https://www.binance.com/zh-CN/square/post/390223738451625
 - 2026-11-20 ✅ 币安广场繁体版：https://www.binance.com/zh-CN/square/post/390225541848802
 - 2026-11-20 ✅ 币安广场英文版：https://www.binance.com/zh-CN/square/post/390226586441577
+- 2026-11-21 ✅ @TJAmstrong（Mint Guardian）回复互暖：https://x.com/jettyleex/status/2124001042778206306
+- 2026-11-21 📊 交互数据：1/30（仅自有评价，帖子发酵中）
+- 2026-11-21 💡 发现：GCORE 的提问是回复我们的互暖帖——运营产生真实互动了
+- 经验补充：X 回复流可靠顺序 = execCommand 插入 → "a"+Backspace 唤醒（内容会翻倍）→ selectAll+delete+重插 → mouse_click；插入后**绝对不要点击文本框**（会清空）
